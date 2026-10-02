@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Channel Guard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 50px;
+            background: #ffffff;
+            border-bottom: 1px solid #dfe5ec;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #1f3b5b;
+        }
+
+        .logo span {
+            color: #1769aa;
+        }
+
+        .status-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #27895f;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #35b979;
+            box-shadow: 0 0 8px rgba(53, 185, 121, 0.5);
+        }
+
+        .wrapper {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 50px 30px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #dde4ec;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow: 0 8px 28px rgba(31, 59, 91, 0.08);
+        }
+
+        .hero h1 {
+            margin-top: 0;
+            font-size: 42px;
+            line-height: 1.12;
+            margin-bottom: 18px;
+            color: #1f2937;
+        }
+
+        .hero h1 span {
+            color: #1769aa;
+        }
+
+        .subtitle {
+            color: #617184;
+            font-size: 17px;
+            line-height: 1.6;
+            max-width: 700px;
+        }
+
+        .badge {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #eef5ff;
+            color: #2575d8;
+            font-size: 13px;
+            border: 1px solid #d3e5fb;
+        }
+
+        .shield {
+            height: 100%;
+            min-height: 270px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(180deg, #ffffff, #f7fbff);
+        }
+
+        .shield-icon {
+            width: 110px;
+            height: 110px;
+            border-radius: 28px;
+            background: #eef5ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #2575d8;
+            margin-bottom: 18px;
+            border: 1px solid #d4e5f7;
+        }
+
+        .shield strong {
+            font-size: 20px;
+            color: #1f2937;
+        }
+
+        .shield small {
+            color: #7c8b9d;
+            margin-top: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #26384c;
+        }
+
+        .channel-box {
+            margin-top: 18px;
+            padding: 18px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .channel-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            color: #6b7788;
+        }
+
+        .channel-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .channel-value {
+            color: #26384c;
+            font-weight: bold;
+        }
+
+        .protected {
+            color: #259266;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 22px;
+        }
+
+        button {
+            border: 0;
+            padding: 13px 18px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .allow {
+            background: #2fa36b;
+            color: white;
+        }
+
+        .deny {
+            background: #d94b55;
+            color: white;
+        }
+
+        .reset {
+            background: #e8edf3;
+            color: #42566d;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            min-height: 56px;
+            color: #718096;
+        }
+
+        .log {
+            margin-top: 14px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #526273;
+            min-height: 170px;
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+        }
+
+        .log div {
+            margin-bottom: 8px;
+        }
+
+        .success {
+            color: #22845c;
+        }
+
+        .danger {
+            color: #c8424c;
+        }
+
+        .info {
+            color: #2e6fae;
+        }
+
+        .scheme {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .node {
+            flex: 1;
+            min-width: 130px;
+            padding: 18px;
+            text-align: center;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #dce5ee;
+            color: #34495e;
+        }
+
+        .node strong {
+            display: inline-block;
+            color: #2575d8;
+            font-size: 13px;
+            letter-spacing: 1.5px;
+            margin-bottom: 4px;
+        }
+
+        .arrow {
+            color: #2575d8;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            color: #8291a2;
+            padding: 35px 15px 45px;
+            font-size: 13px;
+        }
+
+        select {
+            width: 170px;
+            padding: 8px 12px;
+            border: 1px solid #cfd8e3;
+            border-radius: 8px;
+            background: white;
+            color: #26384c;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+            z-index: 10;
+            pointer-events: auto;
+        }
+        
+        @media (max-width: 800px) {
+            .hero,
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 18px 22px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .wrapper {
+                padding: 30px 18px;
+            }
+            
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Secure <span>Virtual Guard</span></div>
+
+    <div class="status-top">
+        <div class="dot"></div>
+        Система защиты активна
+    </div>
+</header>
+
+<div class="wrapper">
+
+    <section class="hero">
+        <div class="card">
+            <div class="badge">Контрольная работа · Вариант 25</div>
+
+            <h1>
+                Защита от <span>несанкционированного доступа</span>
+                к виртуальным каналам передачи
+            </h1>
+
+            <p class="subtitle">
+                Демонстрационный паттерн безопасности контролирует попытки
+                подключения к виртуальному каналу, проверяет авторизацию
+                пользователя и блокирует передачу данных при нарушении политики доступа.
+            </p>
+        </div>
+
+        <div class="card shield">
+            <div class="shield-icon">SECURE</div>
+            <strong>Protected Channel №1</strong>
+            <small>Режим усиленной защиты</small>
+        </div>
+    </section>
+
+    <section class="grid">
+
+        <div class="card">
+            <h2>Параметры защищённого канала</h2>
+
+            <div class="channel-box">
+                <div class="channel-row">
+                    <span>Протокол</span>
+
+                    <select id="protocol">
+                        <option value="TLS 1.3">TLS 1.3</option>
+                        <option value="TLS 1.2">TLS 1.2</option>
+                        <option value="IPsec">IPsec</option>
+                        <option value="WireGuard">WireGuard</option>
+                    </select>
+                </div>
+
+                <div class="channel-row">
+                    <span>Шифрование</span>
+                    <select id="encryption">
+                        <option value="AES-256">AES-256</option>
+                        <option value="AES-128">AES-128</option>
+                        <option value="ChaCha20">ChaCha20</option>
+                    </select>
+                </div>
+
+                <div class="channel-row">
+                    <span>Аутентификация</span>
+                    <span class="channel-value">Token / Session</span>
+                </div>
+
+                <div class="channel-row">
+                    <span>Статус</span>
+                    <span class="channel-value protected">Защищён</span>
+                </div>
+            </div>
+
+            
+            <div class="buttons">
+                <button class="allow" onclick="authorizedAccess()">
+                    Разрешённый доступ
+                </button>
+
+                <button class="deny" onclick="unauthorizedAccess()">
+                    Несанкционированный доступ
+                </button>
+
+                <button class="reset" onclick="resetSystem()">
+                    Сброс
+                </button>
+            </div>
+
+            <div class="result" id="result">
+                Ожидание запроса на подключение...
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Журнал событий безопасности</h2>
+
+            <div class="log" id="securityLog">
+                <div class="info">[SYSTEM] Модуль контроля доступа запущен.</div>
+                <div class="info">[SYSTEM] Virtual Channel №1 готов к работе.</div>
+            </div>
+        </div>
+
+    </section>
+
+    <div class="scheme">
+        <div class="node">
+            <strong>USER</strong>
+            <br><br>
+            Пользователь
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="node">
+            <strong>AUTH</strong>
+            <br><br>
+            Проверка доступа
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="node">
+            <strong>SECURITY</strong>
+            <br><br>
+            Уровень защиты
+        </div>
+
+        <div class="arrow">→</div>
+
+        <div class="node">
+            <strong>CHANNEL</strong>
+            <br><br>
+            Виртуальный канал
+        </div>
+    </div>
+
+    </div>
+
+    <footer>
+        Secure Channel Guard · Паттерн обеспечения безопасности виртуальных каналов передачи
+    </footer>
+
+    <script>
+        const result = document.getElementById("result");
+        const log = document.getElementById("securityLog");
+
+        function getTime() {
+            return new Date().toLocaleTimeString();
+        }
+
+        function addLog(message, type) {
+            const item = document.createElement("div");
+            item.className = type;
+            item.innerHTML = "[" + getTime() + "] " + message;
+            log.prepend(item);
+        }
+
+        function authorizedAccess() {
+            result.innerHTML =
+                "✓ Пользователь успешно авторизован. Доступ к виртуальному каналу разрешён.";
+
+            result.style.color = "#57e4b1";
+            result.style.borderColor = "rgba(87,228,177,0.35)";
+
+            addLog(
+                "ACCESS GRANTED — пользователь прошёл проверку авторизации.",
+                "success"
+            );
+
+            addLog(
+                "DATA TRANSFER — защищённая передача данных разрешена.",
+                "success"
+            );
+            
+            addLog(
+                "CHANNEL ESTABLISHED — " +
+                protocol + ", шифрование " + encryption + ".",
+                "success"
+            );
+        }
+
+        function unauthorizedAccess() {
+            result.innerHTML =
+                "✕ Несанкционированная попытка доступа обнаружена. Соединение заблокировано.";
+
+            result.style.color = "#ff7a89";
+            result.style.borderColor = "rgba(255,122,137,0.35)";
+
+            addLog(
+                "ACCESS DENIED — обнаружена попытка несанкционированного доступа.",
+                "danger"
+            );
+
+            addLog(
+                "CONNECTION BLOCKED — виртуальный канал защищён.",
+                "danger"
+            );
+        }
+
+        function resetSystem() {
+            result.innerHTML = "Ожидание запроса на подключение...";
+            result.style.color = "#95a7bc";
+            result.style.borderColor = "rgba(255,255,255,0.06)";
+
+            log.innerHTML =
+                '<div class="info">[SYSTEM] Журнал очищен.</div>' +
+                '<div class="info">[SYSTEM] Virtual Channel №1 готов к работе.</div>';
+        }
+    </script>
+
+    </body>
+</html>
